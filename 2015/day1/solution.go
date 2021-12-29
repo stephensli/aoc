@@ -34,7 +34,7 @@ func determineFloor(input []string) (int int, basementIndex int) {
 }
 
 func main() {
-	aoc.Setup(2015, 1)
+	defer aoc.Setup(2015, 1)()
 
 	input := file.ToTextSplit("./input.txt", "")
 
