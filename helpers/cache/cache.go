@@ -6,6 +6,7 @@ type Cache[K comparable, V any] interface {
 	Has(key K) (ok bool)
 	Set(key K, val V)
 	Delete(key K)
+	Len() int
 }
 
 type SimpleCache[K comparable, V any] struct {
@@ -43,4 +44,8 @@ func (c SimpleCache[K, V]) Has(key K) (ok bool) {
 
 func (c SimpleCache[K, V]) Delete(key K) {
 	delete(c.items, key)
+}
+
+func (c SimpleCache[K, V]) Len() int {
+	return len(c.items)
 }
