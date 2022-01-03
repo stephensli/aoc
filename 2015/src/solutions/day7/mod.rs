@@ -1,8 +1,9 @@
-mod input;
-
-use crate::input::LogicAction;
-use helpers::{setup, Solution};
 use std::collections::{HashMap, VecDeque};
+
+use crate::day7::input::LogicAction;
+use helpers::{ChallengeSolution, Solution};
+
+mod input;
 
 /// Parse value will return the value if it has already been defined in the map
 /// otherwise it will return no value, (None). In which cause the operation should
@@ -47,7 +48,13 @@ fn assign(action: &LogicAction, logic_map: &mut HashMap<String, u16>) -> bool {
     false
 }
 
-fn and_or(left: Option<u16>, right: Option<u16>, target: &String, logic_map: &mut HashMap<String, u16>, or: bool) -> bool {
+fn and_or(
+    left: Option<u16>,
+    right: Option<u16>,
+    target: &String,
+    logic_map: &mut HashMap<String, u16>,
+    or: bool,
+) -> bool {
     if let Some(parsed_left) = left {
         if let Some(parsed_right) = right {
             let mut value = parsed_left & parsed_right;
@@ -64,7 +71,13 @@ fn and_or(left: Option<u16>, right: Option<u16>, target: &String, logic_map: &mu
     false
 }
 
-fn shift(left: Option<u16>, right: Option<u16>, target: &String, logic_map: &mut HashMap<String, u16>, right_shift: bool) -> bool {
+fn shift(
+    left: Option<u16>,
+    right: Option<u16>,
+    target: &String,
+    logic_map: &mut HashMap<String, u16>,
+    right_shift: bool,
+) -> bool {
     if let Some(parsed_left) = left {
         if let Some(parsed_right) = right {
             return if right_shift {
@@ -92,7 +105,6 @@ fn solve(logic_actions: &Vec<LogicAction>) -> String {
         let left = parse_value(&action.source_left, &logic_actions_map);
         let right = parse_value(&action.source_right, &logic_actions_map);
 
-
         let ok = match action.operation.as_str() {
             "ASSIGN" => assign(&action, &mut logic_actions_map),
             "NOT" => not(&action, &mut logic_actions_map),
@@ -111,21 +123,36 @@ fn solve(logic_actions: &Vec<LogicAction>) -> String {
     logic_actions_map.get("a").unwrap().to_string()
 }
 
-fn main() {
-    let completion = setup(2015, 7);
+pub(crate) struct Challenge {}
 
-    let mut logic_actions = input::parse("./input.txt");
-    let part_one = solve(&logic_actions);
+impl ChallengeSolution for Challenge {
+    fn solve(&self, input: Vec<String>) -> Solution {
+        let mut logic_actions = input::parse(input);
+        let part_one = solve(&logic_actions);
 
-    for x in logic_actions.iter_mut() {
-        if x.operation == "ASSIGN" && x.target == "b" {
-            x.source_left = part_one.to_string();
+        for x in logic_actions.iter_mut() {
+            if x.operation == "ASSIGN" && x.target == "b" {
+                x.source_left = part_one.to_string();
+            }
+        }
+
+        let part_two = solve(&logic_actions);
+
+        Solution {
+            part1: part_one,
+            part2: part_two,
         }
     }
 
-    let part_two = solve(&logic_actions);
-    completion(Solution {
-        part1: part_one,
-        part2: part_two,
-    })
+    fn year(&self) -> i32 {
+        2015
+    }
+
+    fn day(&self) -> i32 {
+        7
+    }
+
+    fn example(&self) -> bool {
+        false
+    }
 }

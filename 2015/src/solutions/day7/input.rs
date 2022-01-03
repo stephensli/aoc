@@ -1,5 +1,3 @@
-use helpers::read_lines;
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LogicAction {
     pub target: String,
@@ -8,13 +6,12 @@ pub struct LogicAction {
     pub operation: String,
 }
 
-pub fn parse(path: &str) -> Vec<LogicAction> {
-    let lines = read_lines(path).unwrap();
-
+pub fn parse(lines: Vec<String>) -> Vec<LogicAction> {
     let actions: Vec<LogicAction> = lines
+        .iter()
         .map(|line| {
             let split = line
-                .unwrap().split(" -> ")
+                .split(" -> ")
                 .map(|x| x.to_string())
                 .collect::<Vec<String>>();
 
@@ -23,9 +20,23 @@ pub fn parse(path: &str) -> Vec<LogicAction> {
             let target = split[1].clone();
 
             match source.len() {
-                1 => parse = ("ASSIGN".to_string(), target.clone(), source[0].clone(), String::new()),
+                1 => {
+                    parse = (
+                        "ASSIGN".to_string(),
+                        target.clone(),
+                        source[0].clone(),
+                        String::new(),
+                    )
+                }
                 2 => parse = (source[0].clone(), target, String::new(), source[1].clone()),
-                3 => parse = (source[1].clone(), target.clone(), source[0].clone(), source[2].clone()),
+                3 => {
+                    parse = (
+                        source[1].clone(),
+                        target.clone(),
+                        source[0].clone(),
+                        source[2].clone(),
+                    )
+                }
                 _ => {}
             }
 

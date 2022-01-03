@@ -1,8 +1,8 @@
-use super::*;
-
 #[cfg(test)]
 mod test_decode {
-    use super::*;
+    use helpers::ChallengeSolution;
+
+    use crate::day8::{parse_string_length, Challenge};
 
     #[test]
     fn parse_string_length_test() {
@@ -26,6 +26,7 @@ mod test_decode {
             .map(|x| x.0.to_string())
             .collect::<Vec<String>>();
 
-        assert_eq!(solve(solve_input).part1, 12.to_string());
+        let challenge = Challenge {};
+        assert_eq!(challenge.solve(solve_input).part1, 12.to_string());
     }
 }
