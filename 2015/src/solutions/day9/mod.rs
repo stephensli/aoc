@@ -1,9 +1,8 @@
-use std::collections::HashMap;
-
+use std::cmp::{max, min};
+use std::collections::{HashMap, HashSet};
 use helpers::{ChallengeSolution, Solution};
 
-#[cfg(test)]
-mod test;
+use itertools::Itertools;
 
 pub(crate) struct Challenge {}
 
@@ -11,7 +10,7 @@ pub(crate) struct Challenge {}
 struct TravelNode {
     pub source: String,
     pub target: String,
-    pub cost: i32,
+    pub cost: u32,
 }
 
 /// Takes in a line based on the given format and converts it into a given target
@@ -22,66 +21,86 @@ struct TravelNode {
 /// * `line`:
 ///
 /// returns: (String, Target)
-fn parse_line(line: &str) -> (TravelNode, TravelNode) {
+fn parse_line(line: &str) -> TravelNode {
     let line_split = line.split_whitespace().into_iter().collect::<Vec<&str>>();
-    (
-        TravelNode {
-            source: line_split[line_split.len() - 3].to_string(),
-            target: line_split[0].to_string(),
-            cost: line_split[line_split.len() - 1].parse::<i32>().unwrap(),
-        },
-        TravelNode {
-            source: line_split[0].to_string(),
-            cost: line_split[line_split.len() - 1].parse::<i32>().unwrap(),
-            target: line_split[line_split.len() - 3].to_string(),
-        },
-    )
+
+    TravelNode {
+        source: line_split[0].to_string(),
+        target: line_split[2].to_string(),
+        cost: line_split[4].parse::<u32>().unwrap(),
+    }
 }
 
-fn determine_shortest_distance_visit_once(input: HashMap<String, Vec<TravelNode>>) -> u32 {
-    // example process - visit at most once.
-    //
-    // Dublin -> London -> Belfast = 982
-    // London -> Dublin -> Belfast = 605
-    // London -> Belfast -> Dublin = 659
-    // Dublin -> Belfast -> London = 659
-    // Belfast -> Dublin -> London = 605
-    // Belfast -> London -> Dublin = 982
-    // output: 605
 
-    0
+fn determine_distance_values(places: HashSet<String>, distances: HashMap<String, HashMap<String, u32>>) -> (u32, u32) {
+    let mut shortest_value = u32::MAX;
+    let mut longest_value = u32::MIN;
+
+    // generate all possible permutations, these permutations are every possible
+    // route that can be taken from A to B. These will be used to determine costs.
+    for x in places.iter().permutations(places.len()).unique() {
+        // slice the first half and second half of the paths taken. Each
+        // setup will be summed up until the destination is hit.
+        //
+        // e.g
+        //
+        // 0->1 - SUM
+        // 1->2 - SUM
+        //
+        // etc
+        let first_half = x[0..x.len() - 1].to_vec();
+        let second_half = x[1..x.len()].to_vec();
+
+        let mut sum_distances = 0;
+
+        // iterate and sum the distances.
+        for i in 0..first_half.len() {
+            sum_distances += distances.get(first_half[i]).unwrap().get(second_half[i]).unwrap();
+        }
+
+        // check if we have a new min or max values.
+        shortest_value = min(shortest_value, sum_distances);
+        longest_value = max(longest_value, sum_distances);
+    }
+
+    (shortest_value, longest_value)
 }
 
 impl ChallengeSolution for Challenge {
     fn solve(&self, input: Vec<String>) -> Solution {
-        // input sample
-        // London to Dublin = 464
-        // London to Belfast = 518
-        // Dublin to Belfast = 141
-        // generate a map from all possible positions and the target cost.
-        let mut travel_map: HashMap<String, Vec<TravelNode>> = HashMap::new();
+        // We must go from start and end at any two (different) locations, but
+        // he must visit each location exactly once. This is a unique listing
+        // of all the places.
+        let mut places: HashSet<String> = HashSet::new();
+
+        // a mapping between every single place and the cost to get to said
+        // place between those locations. E.g the cost between X => Y.
+        let mut destinations: HashMap<String, HashMap<String, u32>> = HashMap::new();
 
         for x in input {
-            let parsed_line = parse_line(&x);
+            let parsed_line = &parse_line(&x);
 
-            let first_entry = travel_map
-                .entry(parsed_line.0.source.clone())
-                .or_insert_with(Vec::new);
+            places.insert(parsed_line.source.clone());
+            places.insert(parsed_line.target.clone());
 
-            first_entry.push(parsed_line.0);
+            let source_entry = destinations
+                .entry(parsed_line.source.clone())
+                .or_insert(HashMap::new());
 
-            let second_entry = travel_map
-                .entry(parsed_line.1.source.clone())
-                .or_insert_with(Vec::new);
+            source_entry.insert(parsed_line.target.clone(), parsed_line.cost);
 
-            second_entry.push(parsed_line.1);
+            let destination_entry = destinations
+                .entry(parsed_line.target.clone())
+                .or_insert(HashMap::new());
+
+            destination_entry.insert(parsed_line.source.clone(), parsed_line.cost);
         }
 
-        println!("{:?}", travel_map);
+       let distances = determine_distance_values(places, destinations);
 
         Solution {
-            part1: determine_shortest_distance_visit_once(travel_map).to_string(),
-            part2: "".to_string(),
+            part1: distances.0.to_string(),
+            part2: distances.1.to_string(),
         }
     }
 
@@ -94,6 +113,6 @@ impl ChallengeSolution for Challenge {
     }
 
     fn example(&self) -> bool {
-        true
+        false
     }
 }
