@@ -32,9 +32,10 @@ func solution(input []Action, partOne bool) int {
 }
 
 func main() {
-	defer aoc.Setup(2015, 6)()
+	path, deferFunc := aoc.Setup(2015, 6, false)
+	defer deferFunc()
 
-	input := file.ToTextLines("./input.txt")
+	input := file.ToTextLines(path)
 	actions := parseInput(input)
 
 	aoc.PrintAnswer(1, solution(actions, true))

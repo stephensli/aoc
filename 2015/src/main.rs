@@ -7,7 +7,6 @@ fn main() {
     let days: Vec<Box<dyn ChallengeSolution>> = vec![
         Box::new(day7::Challenge {}),
         Box::new(day8::Challenge {}),
-        Box::new(day9::Challenge {}),
     ];
 
     // latest

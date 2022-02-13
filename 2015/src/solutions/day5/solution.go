@@ -109,9 +109,10 @@ func solution(input [][]string, first bool) int {
 }
 
 func main() {
-	defer aoc.Setup(2015, 5)()
+	path, deferFunc := aoc.Setup(2015, 5, false)
+	defer deferFunc()
 
-	input := file.ToTextSplit("./input.txt", "")
+	input := file.ToTextSplit(path, "")
 
 	aoc.PrintAnswer(1, solution(input, true))
 	aoc.PrintAnswer(2, solution(input, false))

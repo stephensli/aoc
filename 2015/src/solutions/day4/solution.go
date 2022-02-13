@@ -26,9 +26,10 @@ func solution(input string, leadingZeros string) int {
 }
 
 func main() {
-	defer aoc.Setup(2015, 4)()
+	path, deferFunc := aoc.Setup(2015, 4, false)
+	defer deferFunc()
 
-	input := file.ToTextLines("./input.txt")[0]
+	input := file.ToTextLines(path)[0]
 
 	aoc.PrintAnswer(1, solution(input, "00000"))
 	aoc.PrintAnswer(2, solution(input, "000000"))

@@ -83,9 +83,10 @@ func partTwo(input []string) int {
 }
 
 func main() {
-	defer aoc.Setup(2015, 3)()
+	path, deferFunc := aoc.Setup(2015, 3, false)
+	defer deferFunc()
 
-	input := file.ToTextSplit("./input.txt", "")[0]
+	input := file.ToTextSplit(path, "")[0]
 
 	aoc.PrintAnswer(1, partOne(input))
 	aoc.PrintAnswer(2, partTwo(input))

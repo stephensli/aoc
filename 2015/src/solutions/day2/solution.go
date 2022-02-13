@@ -29,9 +29,10 @@ func partTwo(prisms []Present) int {
 }
 
 func main() {
-	defer aoc.Setup(2015, 2)()
+	path, deferFunc := aoc.Setup(2015, 2, false)
+	defer deferFunc()
 
-	input := file.ToTextLines("./input.txt")
+	input := file.ToTextLines(path)
 	prisms := parseInput(input)
 
 	aoc.PrintAnswer(1, partOne(prisms))
